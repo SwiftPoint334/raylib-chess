@@ -23,7 +23,7 @@ ChessAnalysisProgram::ChessAnalysisProgram() {
 
 ChessAnalysisProgram::~ChessAnalysisProgram() {
     unloadAllTextures();
-    CloseWindow();
+    //CloseWindow(); disabled because raylib associates esc with this by default
 }
 
 void ChessAnalysisProgram::loadAllTextures() {
