@@ -3,26 +3,18 @@ project(assignment_1)
 
 set(CMAKE_CXX_STANDARD 20)
 
-# Raylib Homebrew path
-set(RAYLIB_PATH "/opt/homebrew/Cellar/raylib/5.5")
+# Ensure Raylib is found via Homebrew
+if(APPLE)
+    list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/opt/raylib")
+endif()
 
-# Include header files
-include_directories(${RAYLIB_PATH}/include)
-
-# Link to the library directory
-link_directories(${RAYLIB_PATH}/lib)
+find_package(raylib CONFIG REQUIRED)
 
 add_executable(assignment_1
-        main.cpp
-        chess_analysis_program.cpp
-        chess_game.h
-        chess_game.cpp
+    main.cpp
+    chess_analysis_program.cpp
+    chess_game.h
+    chess_game.cpp
 )
 
-# Link libraries
-target_link_libraries(assignment_1
-        raylib
-        m
-        pthread
-        dl
-)
+target_link_libraries(assignment_1 PRIVATE raylib)

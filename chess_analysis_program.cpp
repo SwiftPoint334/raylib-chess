@@ -19,6 +19,11 @@ ChessAnalysisProgram::ChessAnalysisProgram() {
     }
 
     currentPosition = ChessGame();
+    dragging = false;
+    selectedRow = -1;
+    selectedCol = -1;
+    draggingPiece = static_cast<PieceType>(-1);
+    dragOffset = {0, 0};
 }
 
 ChessAnalysisProgram::~ChessAnalysisProgram() {
@@ -101,10 +106,6 @@ void ChessAnalysisProgram::unloadAllTextures() {
 
 void ChessAnalysisProgram::updateGame() {
     // handle input and update game state here
-    static bool dragging = false;
-    static int selectedRow = -1;
-    static int selectedCol = -1;
-
     float tileSize = boardTexture.width * 0.675f / 8.0f;
     Vector2 mouse = GetMousePosition();
 
@@ -118,6 +119,8 @@ void ChessAnalysisProgram::updateGame() {
                 dragging = true;
                 selectedRow = hoveredRow;
                 selectedCol = hoveredCol;
+                draggingPiece = piece;
+                dragOffset = {mouse.x - (selectedCol * tileSize), mouse.y - (selectedRow * tileSize)};
             }
         }
     }
@@ -129,6 +132,8 @@ void ChessAnalysisProgram::updateGame() {
         dragging = false;
         selectedRow = -1;
         selectedCol = -1;
+        draggingPiece = static_cast<PieceType>(-1);
+        dragOffset = {0,0};
     }
 }
 
@@ -154,10 +159,14 @@ void ChessAnalysisProgram::renderBoard() {
 void ChessAnalysisProgram::renderPieces() {
     // render all chess pieces here
     // go through all squares on the board and draw the appropriate piece
+    float tileSize = boardTexture.width * 0.675f / 8.0f;
     for (int row = 0; row < 8; ++row) {
         for (int col = 0; col < 8; ++col) {
             PieceType piece = currentPosition.getPieceAt(row, col);
             Texture2D textureToDraw;
+            if (dragging && row == selectedRow && col == selectedCol) {
+                continue;
+            }
             switch (piece) {
                 case WHITE_PAWN:
                     textureToDraw = whitePawnTexture;
@@ -199,9 +208,59 @@ void ChessAnalysisProgram::renderPieces() {
                     continue; // empty square
             }
             // calculate position to draw the piece
-            float tileSize = boardTexture.width * 0.675f / 8.0f;
             DrawTextureEx(textureToDraw, {col * tileSize, row * tileSize}, 0.0f, tileSize / textureToDraw.width, WHITE);
         }
+    }
+
+    if (dragging) {
+        Texture2D textureToDraw;
+        switch (draggingPiece) {
+            case WHITE_PAWN:
+                textureToDraw = whitePawnTexture;
+                break;
+            case WHITE_KNIGHT:
+                textureToDraw = whiteKnightTexture;
+                break;
+            case WHITE_BISHOP:
+                textureToDraw = whiteBishopTexture;
+                break;
+            case WHITE_ROOK:
+                textureToDraw = whiteRookTexture;
+                break;
+            case WHITE_QUEEN:
+                textureToDraw = whiteQueenTexture;
+                break;
+            case WHITE_KING:
+                textureToDraw = whiteKingTexture;
+                break;
+            case BLACK_PAWN:
+                textureToDraw = blackPawnTexture;
+                break;
+            case BLACK_KNIGHT:
+                textureToDraw = blackKnightTexture;
+                break;
+            case BLACK_BISHOP:
+                textureToDraw = blackBishopTexture;
+                break;
+            case BLACK_ROOK:
+                textureToDraw = blackRookTexture;
+                break;
+            case BLACK_QUEEN:
+                textureToDraw = blackQueenTexture;
+                break;
+            case BLACK_KING:
+                textureToDraw = blackKingTexture;
+                break;
+            default:
+                return;
+        }
+
+        Vector2 mouse = GetMousePosition();
+        DrawTextureEx(textureToDraw,
+                      {mouse.x - dragOffset.x, mouse.y - dragOffset.y},
+                      0.0f,
+                      tileSize / textureToDraw.width,
+                      WHITE);
     }
 }
 

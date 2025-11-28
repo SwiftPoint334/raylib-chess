@@ -33,4 +33,10 @@ private:
     void renderGame();
     void loadAllTextures();
     void unloadAllTextures();
+
+    bool dragging;
+    int selectedRow;
+    int selectedCol;
+    PieceType draggingPiece;
+    Vector2 dragOffset;
 };
